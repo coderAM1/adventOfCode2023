@@ -4,104 +4,58 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strings"
 )
 
 func main() {
-	readFile, err := os.Open("resources/day2input.txt")
+	readFile, err := os.Open("resources/day3input.txt")
 
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	currentScore := 0
-
 	fileScanner := bufio.NewScanner(readFile)
+
+	var lineArray []string
+
+	score := 0
+	score2 := 0
 
 	for fileScanner.Scan() {
 		lineStr := fileScanner.Text()
-		opponentsChoice := string(lineStr[0])
-		outcome := string(lineStr[2])
-		yourChoice := whatShouldYouChoose(opponentsChoice, outcome)
-		currentScore = currentScore + characterValue(yourChoice)
-		currentScore = currentScore + didYouWin(opponentsChoice, yourChoice)
-	}
-
-	fmt.Println(currentScore)
-}
-
-func whatShouldYouChoose(opponent, outcome string) string {
-	if outcome == "X" {
-		switch opponent {
-		case "A":
-			return "Z"
-		case "B":
-			return "X"
-		case "C":
-			return "Y"
+		lineArray = append(lineArray, lineStr)
+		strLength := len(lineStr)
+		halfLength := (strLength / 2)
+		firstHalf := lineStr[0:halfLength]
+		secondHalf := lineStr[halfLength:strLength]
+		var alreadyChecked string
+		for _, element := range firstHalf {
+			if strings.Contains(secondHalf, string(element)) && !strings.Contains(alreadyChecked, string(element)) {
+				if element <= 91 {
+					score += (int(element) - 64) + 26
+				} else {
+					score += int(element) - 96
+				}
+			}
+			alreadyChecked += string(element)
 		}
-	} else if outcome == "Y" {
-		switch opponent {
-		case "A":
-			return "X"
-		case "B":
-			return "Y"
-		case "C":
-			return "Z"
-		}
-	} else if outcome == "Z" {
-		switch opponent {
-		case "A":
-			return "Y"
-		case "B":
-			return "Z"
-		case "C":
-			return "X"
+		fmt.Println(lineArray)
+		if len(lineArray) == 3 {
+			var alreadyChecked2 string
+			for _, element := range lineArray[0] {
+				if strings.Contains(lineArray[1], string(element)) && strings.Contains(lineArray[2], string(element)) && !strings.Contains(alreadyChecked2, string(element)) {
+					if element <= 91 {
+						score2 += (int(element) - 64) + 26
+					} else {
+						score2 += int(element) - 96
+					}
+				}
+				alreadyChecked2 += string(element)
+			}
+			lineArray = nil
 		}
 	}
-	return ""
-}
 
-func characterValue(a string) int {
-	switch a {
-	case "X":
-		return 1
-	case "Y":
-		return 2
-	case "Z":
-		return 3
-	default:
-		return 0
-	}
-}
-
-func didYouWin(opponent, yourself string) int {
-	if yourself == "X" {
-		switch opponent {
-		case "A":
-			return 3
-		case "B":
-			return 0
-		case "C":
-			return 6
-		}
-	} else if yourself == "Y" {
-		switch opponent {
-		case "A":
-			return 6
-		case "B":
-			return 3
-		case "C":
-			return 0
-		}
-	} else if yourself == "Z" {
-		switch opponent {
-		case "A":
-			return 0
-		case "B":
-			return 6
-		case "C":
-			return 3
-		}
-	}
-	return 0
+	fmt.Println(score)
+	fmt.Println(score2)
 }
